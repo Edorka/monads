@@ -1,13 +1,22 @@
-const Failure = function(cause) {
-    this.value = cause;
+const Failure = function(step, cause) {
+    this.__step = step;
+    this.__reason = cause;
 }
 
-Failure.of = function(cause) {
-   return new Failure(cause); 
+Failure.of = function(step, cause) {
+   return new Failure(step, cause); 
 }
 
 Failure.prototype.map = function(ignored) {
     return this;
+}
+
+Failure.prototype.getValue = function() {
+    return this.__step.getValue();
+}
+
+Failure.prototype.getReason = function() {
+    return this.__reason;
 }
 
 Failure.prototype.isFailure = function() {
@@ -15,7 +24,7 @@ Failure.prototype.isFailure = function() {
 }
 
 const Step = function(value) {
-    this.value = value;
+    this.__value = value;
 }
 
 Step.of = function(value) {
@@ -24,14 +33,18 @@ Step.of = function(value) {
 
 Step.prototype.map = function(fn) {
     try {
-        return Step.of(fn(this.value));
+        return Step.of(fn(this.__value));
     } catch (error) {
-        return Failure.of(error);
+        return Failure.of(this, error);
     }
 }
 
+Step.prototype.getValue = function() {
+    return this.__value;
+}
+
 Step.prototype.chain = function(fn) {
-    return this.map(fn).value;
+    return this.map(fn).getValue();
 }
 
 Step.prototype.isFailure = function() {

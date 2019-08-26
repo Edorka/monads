@@ -2,7 +2,7 @@ const Process = require('../process');
 
 test('Verify the process\'s value', () => {
     const process = Process.Step.of(3);
-    expect(process.value).toBe(3);
+    expect(process.getValue()).toBe(3);
 });
 
 test('Verify a process\'s update', () => {
@@ -10,7 +10,7 @@ test('Verify a process\'s update', () => {
     const doubleIt = x => x + x;
     const result = process.map(doubleIt);
     expect(result.isFailure()).toBe(false);
-    expect(result.value).toBe(6);
+    expect(result.getValue()).toBe(6);
 });
 
 test('Verify a process\'s chain', () => {
@@ -19,14 +19,14 @@ test('Verify a process\'s chain', () => {
     expect(process.chain(doubleIt)).toBe(6);
 });
 
-test('produce a Failure', () => {
+test('produce a Failure after some steps', () => {
     const process = Process.Step.of(3);
     const doubleIt = x => x + x;
     const produceError = x => { throw new TypeError('Something went wrong') };
     const intermediate = process.map(doubleIt);
-    expect(intermediate.value).toBe(6);
+    expect(intermediate.getValue()).toBe(6);
     const result = intermediate.map(produceError).map(doubleIt);
     expect(result.isFailure()).toBe(true);
-    expect(result.value).not.toBe(3);
-    expect(result.value instanceof TypeError).toBe(true);
+    expect(result.getValue()).toBe(6);
+    expect(result.getReason() instanceof TypeError).toBe(true);
 });
