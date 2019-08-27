@@ -23,6 +23,10 @@ Failure.prototype.isFailure = function() {
     return true;
 }
 
+Failure.prototype.retry = function(fn) {
+    return this.__step.map(fn);
+}
+
 const Step = function(value) {
     this.__value = value;
 }

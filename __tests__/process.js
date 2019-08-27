@@ -30,3 +30,15 @@ test('produce a Failure after some steps', () => {
     expect(result.getValue()).toBe(6);
     expect(result.getReason() instanceof TypeError).toBe(true);
 });
+
+test('produce a Failure and then retry', () => {
+    const process = Process.Step.of(3);
+    const doubleIt = x => x + x;
+    const produceError = x => { throw new TypeError('Something went wrong') };
+    const intermediate = process.map(doubleIt);
+    expect(intermediate.getValue()).toBe(6);
+    const failure = intermediate.map(produceError);
+    expect(failure.isFailure()).toBe(true);
+    const result = failure.retry(doubleIt);
+    expect(result.getValue()).toBe(12);
+});
